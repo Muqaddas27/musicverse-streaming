@@ -17,12 +17,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/musicverse-premium-streaming.git"
+    "url": "https://github.com/Muqaddas27/musicverse-streaming.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/musicverse-premium-streaming/issues"
+    "url": "https://github.com/Muqaddas27/musicverse-streaming/issues"
   },
-  "homepage": "https://github.com/yourusername/musicverse-premium-streaming#readme",
+  "homepage": "https://github.com/Muqaddas27/musicverse-streaming#readme",
   "private": true,
   "type": "module",
   "engines": {
