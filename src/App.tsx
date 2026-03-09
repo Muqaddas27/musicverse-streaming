@@ -4,7 +4,7 @@ import {
   Volume2, VolumeX, Heart, ListMusic, Search,
   Compass, Music2, Clock, MoreHorizontal,
   ChevronLeft, ChevronRight, PlayCircle, Mail, ExternalLink,
-  Headphones, SearchCode, Mic2, Globe, MoonStar, Sun
+  Headphones, SearchCode, Mic2, Globe, MoonStar, Sun, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Song, Playlist, View } from './types';
@@ -192,6 +192,19 @@ const HEADER_LINKS: Array<{ label: string; view: View }> = [
 ];
 
 const isSongPlayable = (song: Song) => Boolean(song.audio && song.audio.trim().length > 0);
+const FALLBACK_COVER = 'https://picsum.photos/seed/musicverse-cover-fallback/300/300';
+
+const resolveCover = (cover: string) => {
+  const safe = (cover || '').trim();
+  return safe.length > 0 ? safe : FALLBACK_COVER;
+};
+
+const handleCoverImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const image = e.currentTarget;
+  if (image.dataset.fallbackApplied === 'true') return;
+  image.dataset.fallbackApplied = 'true';
+  image.src = FALLBACK_COVER;
+};
 
 type ModalKind = 'info' | 'success' | 'error' | 'confirm';
 
@@ -251,6 +264,7 @@ export default function App() {
   const [contactStatus, setContactStatus] = useState('');
   const [isCreatePlaylistModalOpen, setIsCreatePlaylistModalOpen] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState('');
+  const [showPlayer, setShowPlayer] = useState(false);
   const [appModal, setAppModal] = useState<AppModalState>({
     isOpen: false,
     title: '',
@@ -496,6 +510,7 @@ export default function App() {
     } else {
       setCurrentSong(song);
       setIsPlaying(true);
+      setShowPlayer(true);
       addToRecentlyPlayed(song.id);
     }
   };
@@ -761,7 +776,7 @@ export default function App() {
         preload="auto"
       />
       <header className="surface-panel fixed top-0 left-0 right-0 z-50 rounded">
-        <div className="px-4 lg:px-6 py-3 max-w-340 mx-auto">
+        <div className="px-4 lg:px-6 py-2 max-w-340 mx-auto">
           <div className="flex items-center gap-3">
             <button onClick={() => navigateTo('home')} className="flex items-center gap-2 min-w-fit">
               <span className="brand-mark w-9 h-9 rounded flex items-center justify-center text-xs font-black tracking-wider">MV</span>
@@ -833,7 +848,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="mt-3 md:hidden">
+          <div className="mt-2 md:hidden">
             <div className="relative group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-spotify-gray" size={16} />
               <input
@@ -846,7 +861,7 @@ export default function App() {
             </div>
           </div>
 
-          <nav className="2xl:hidden mt-3 flex items-center gap-1 overflow-x-auto custom-scrollbar pb-1">
+          <nav className="2xl:hidden mt-2 flex items-center gap-1 overflow-x-auto custom-scrollbar pb-1">
             {HEADER_LINKS.map(link => (
               <button
                 key={`mobile-${link.view}`}
@@ -952,8 +967,8 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main id="main-content" className="relative z-10 pt-28 md:pt-32">
-        <div className="custom-scrollbar px-4 lg:px-8 pt-2 pb-32 max-w-330 mx-auto">
+      <main id="main-content" className="relative z-10 pt-24 md:pt-28">
+        <div className={`custom-scrollbar px-4 lg:px-8 pt-2 ${currentSong && showPlayer ? 'pb-28' : 'pb-10'} max-w-330 mx-auto`}>
           {currentView !== 'player-full' && (
             <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
               {siteKpis.map(kpi => (
@@ -1693,7 +1708,7 @@ export default function App() {
 
                   <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     <div className="aspect-square rounded overflow-hidden shadow-2xl shadow-black/80">
-                      <img src={currentSong.cover} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      <img src={resolveCover(currentSong.cover)} onError={handleCoverImageError} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </div>
                     <div className="space-y-8">
                       <div>
@@ -1775,40 +1790,52 @@ export default function App() {
         </div>
 
         {/* Bottom Player */}
-        <footer className="footer-shell fixed bottom-0 left-0 right-0 px-4 py-3 z-50">
-          <div className="surface-panel max-w-330 mx-auto px-4 py-3 rounded flex items-center justify-between gap-4">
-          {/* Current Song Info */}
-          <div className="flex items-center gap-4 w-1/2 sm:w-1/3">
-            {currentSong ? (
-              <>
-                <img 
-                  src={currentSong.cover} 
-                  alt={currentSong.title} 
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded shadow-lg cursor-pointer hover:scale-105 transition-transform shrink-0"
-                  referrerPolicy="no-referrer"
-                  onClick={() => setCurrentView('player-full')}
-                />
-                <div className="flex flex-col min-w-0">
-                  <h4 className="text-sm font-bold hover:underline cursor-pointer truncate" role="status">{currentSong.title}</h4>
-                  <p className="text-xs text-spotify-gray hover:underline cursor-pointer truncate">{currentSong.artist}</p>
-                </div>
-                <button 
-                  onClick={() => toggleFavorite(currentSong.id)}
-                  className={`ml-2 transition-colors hidden sm:block ${favorites.includes(currentSong.id) ? 'text-spotify-green' : 'text-spotify-gray hover:text-white'}`}
+        <AnimatePresence>
+          {currentSong && showPlayer && (
+            <motion.footer 
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="footer-shell fixed bottom-0 left-0 right-0 px-4 py-3 z-50"
+            >
+              <div className="surface-panel max-w-330 mx-auto px-4 py-3 rounded flex items-center justify-between gap-4 relative">
+                {/* Close Button */}
+                <button
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setShowPlayer(false);
+                    if (audioRef.current) {
+                      audioRef.current.pause();
+                    }
+                  }}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-spotify-dark border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-red-500 hover:border-red-500 transition-colors z-10"
+                  title="Close player"
                 >
-                  <Heart size={18} fill={favorites.includes(currentSong.id) ? "currentColor" : "none"} />
+                  <X size={14} />
                 </button>
-              </>
-            ) : (
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 surface-card rounded"></div>
-                <div className="flex flex-col gap-2">
-                  <div className="w-24 h-3 bg-spotify-light/70 rounded"></div>
-                  <div className="w-16 h-2 bg-spotify-light/70 rounded"></div>
+                
+                {/* Current Song Info */}
+                <div className="flex items-center gap-4 w-1/2 sm:w-1/3">
+                  <img 
+                    src={resolveCover(currentSong.cover)} 
+                    onError={handleCoverImageError}
+                    alt={currentSong.title} 
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded shadow-lg cursor-pointer hover:scale-105 transition-transform shrink-0"
+                    referrerPolicy="no-referrer"
+                    onClick={() => setCurrentView('player-full')}
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <h4 className="text-sm font-bold hover:underline cursor-pointer truncate" role="status">{currentSong.title}</h4>
+                    <p className="text-xs text-spotify-gray hover:underline cursor-pointer truncate">{currentSong.artist}</p>
+                  </div>
+                  <button 
+                    onClick={() => toggleFavorite(currentSong.id)}
+                    className={`ml-2 transition-colors hidden sm:block ${favorites.includes(currentSong.id) ? 'text-spotify-green' : 'text-spotify-gray hover:text-white'}`}
+                  >
+                    <Heart size={18} fill={favorites.includes(currentSong.id) ? "currentColor" : "none"} />
+                  </button>
                 </div>
-              </div>
-            )}
-          </div>
 
           {/* Controls */}
           <div className="flex flex-col items-center gap-2 w-1/2 sm:w-1/3">
@@ -1885,8 +1912,10 @@ export default function App() {
               />
             </div>
           </div>
-          </div>
-        </footer>
+              </div>
+            </motion.footer>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );
@@ -1906,7 +1935,7 @@ function QuickPlayCard({ song, isPlaying, isLoading, isActive, onPlay }: QuickPl
 
   return (
     <div className={`surface-card flex items-center gap-4 transition-all rounded overflow-hidden group ${playable ? 'hover:scale-[1.01] cursor-pointer' : 'opacity-80 cursor-not-allowed'}`}>
-      <img src={song.cover} alt={song.title} className="w-20 h-20 object-cover" referrerPolicy="no-referrer" />
+      <img src={resolveCover(song.cover)} onError={handleCoverImageError} alt={song.title} className="w-20 h-20 object-cover" referrerPolicy="no-referrer" />
       <div className="flex-1 flex items-center justify-between pr-4">
         <div className="min-w-0">
           <span className="font-bold truncate block">{song.title}</span>
@@ -1969,7 +1998,7 @@ function SongSection({ title, songs, onPlay, onShowAll, currentSongId, isPlaying
             className={`surface-card p-4 rounded transition-all group ${isSongPlayable(song) ? 'hover:-translate-y-0.5 cursor-pointer' : 'opacity-80 cursor-not-allowed'}`}
           >
             <div className="relative aspect-square mb-4 shadow-lg shadow-black/40">
-              <img src={song.cover} alt={song.title} className="w-full h-full object-cover rounded" referrerPolicy="no-referrer" />
+              <img src={resolveCover(song.cover)} onError={handleCoverImageError} alt={song.title} className="w-full h-full object-cover rounded" referrerPolicy="no-referrer" />
               <button 
                 onClick={(e) => { e.stopPropagation(); onPlay(song); }}
                 className={`absolute bottom-2 right-2 w-12 h-12 bg-spotify-green rounded flex items-center justify-center text-black shadow-2xl opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all ${currentSongId === song.id && isPlaying ? 'opacity-100 translate-y-0' : ''}`}
@@ -1990,7 +2019,7 @@ function SongSection({ title, songs, onPlay, onShowAll, currentSongId, isPlaying
 
 function Footer({ onNavigate, onOpenExternal }: { onNavigate: (v: View) => void; onOpenExternal: (url: string) => void }) {
   return (
-    <footer className="mt-20 pt-12 pb-24 border-t border-white/10">
+    <footer className="mt-12 pt-8 pb-8 border-t border-white/10">
       <div className="cta-band rounded p-6 md:p-8 mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
           <p className="text-xs uppercase tracking-[0.2em] text-spotify-green font-bold">Built For Modern Listening</p>
@@ -2115,7 +2144,7 @@ function SongRow({ song, index, isActive, isPlaying, isLoading, isFavorite, onPl
       </td>
       <td className="py-2">
         <div className="flex items-center gap-3">
-          <img src={song.cover} alt={song.title} className="w-10 h-10 rounded shrink-0" referrerPolicy="no-referrer" />
+          <img src={resolveCover(song.cover)} onError={handleCoverImageError} alt={song.title} className="w-10 h-10 rounded shrink-0" referrerPolicy="no-referrer" />
           <div className="flex flex-col min-w-0">
             <span className={`font-medium text-sm truncate ${isActive ? 'text-spotify-green' : 'text-current'}`}>{song.title}</span>
             <span className="text-xs text-spotify-gray group-hover:text-current truncate">{song.artist}</span>
