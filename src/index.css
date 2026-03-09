@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-spotify-green: #ff8a1f;
+  --color-spotify-black: #0b111c;
+  --color-spotify-dark: #131b2b;
+  --color-spotify-light: #1d2940;
+  --color-spotify-gray: #9ba9c3;
+}
+
+:root {
+  --app-text: #eef2ff;
+  --app-text-muted: #9eacc7;
+  --app-surface: color-mix(in srgb, #1d2940 86%, transparent);
+  --app-surface-strong: color-mix(in srgb, #131b2b 92%, transparent);
+  --app-border: rgba(183, 201, 233, 0.16);
+  --app-glow-a: rgba(255, 138, 31, 0.18);
+  --app-glow-b: rgba(86, 126, 255, 0.18);
+  --app-hero-a: #ff8a1f;
+  --app-hero-b: #3457e8;
+  --app-footer-bg: rgba(10, 15, 26, 0.82);
+  --app-shadow-soft: 0 14px 38px rgba(5, 9, 18, 0.25);
+}
+
+:root[data-theme='light'] {
+  --color-spotify-green: #c96b00;
+  --color-spotify-black: #f3efe7;
+  --color-spotify-dark: #faf7f1;
+  --color-spotify-light: #ece5d7;
+  --color-spotify-gray: #5b6376;
+  --app-text: #17223a;
+  --app-text-muted: #616c83;
+  --app-surface: color-mix(in srgb, #ffffff 90%, #f1e5ce 10%);
+  --app-surface-strong: color-mix(in srgb, #ffffff 95%, #f0dfbf 5%);
+  --app-border: rgba(109, 125, 158, 0.2);
+  --app-glow-a: rgba(224, 124, 28, 0.14);
+  --app-glow-b: rgba(85, 112, 219, 0.14);
+  --app-hero-a: #ff982d;
+  --app-hero-b: #4a63d1;
+  --app-footer-bg: rgba(250, 246, 239, 0.9);
+  --app-shadow-soft: 0 10px 24px rgba(89, 95, 111, 0.12);
+}
+
+@layer base {
+  * {
+    border-color: var(--app-border);
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    color: var(--app-text);
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background:
+      radial-gradient(circle at 10% 5%, var(--app-glow-a) 0, transparent 32%),
+      radial-gradient(circle at 82% 12%, var(--app-glow-b) 0, transparent 40%),
+      linear-gradient(152deg, var(--color-spotify-black) 0%, var(--color-spotify-dark) 52%, var(--color-spotify-black) 100%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: var(--color-spotify-green);
+    color: #061a0f;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Space Grotesk', 'DM Sans', sans-serif;
+    letter-spacing: -0.025em;
+  }
+
+  button,
+  input,
+  textarea {
+    font-family: inherit;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-spotify-green) 70%, white 30%);
+    outline-offset: 2px;
+  }
+
+  button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.app-shell {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: fixed;
+  width: 32rem;
+  height: 32rem;
+  border-radius: 999px;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(22px);
+}
+
+.app-shell::before {
+  top: -9rem;
+  right: -10rem;
+  background: radial-gradient(circle, var(--app-glow-a) 0%, transparent 68%);
+}
+
+.app-shell::after {
+  bottom: -10rem;
+  left: -8rem;
+  background: radial-gradient(circle, var(--app-glow-b) 0%, transparent 72%);
+}
+
+.surface-panel {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--app-surface-strong) 84%, transparent), color-mix(in srgb, var(--app-surface) 96%, transparent));
+  border: 1px solid var(--app-border);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.surface-card {
+  background: linear-gradient(155deg, color-mix(in srgb, var(--app-surface) 95%, transparent), color-mix(in srgb, var(--app-surface-strong) 90%, transparent));
+  border: 1px solid var(--app-border);
+  box-shadow: 0 10px 26px rgba(8, 12, 20, 0.14);
+}
+
+.hero-banner {
+  background:
+    radial-gradient(circle at 14% 14%, color-mix(in srgb, var(--app-hero-a) 30%, transparent), transparent 44%),
+    linear-gradient(116deg, color-mix(in srgb, var(--app-hero-b) 62%, #0a1221 38%), color-mix(in srgb, var(--app-hero-a) 68%, #1e1204 32%));
+}
+
+.brand-mark {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--app-hero-a) 76%, #fff 24%), color-mix(in srgb, var(--app-hero-b) 70%, #0f1629 30%));
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(9, 14, 25, 0.2);
+}
+
+.announce-bar {
+  background: linear-gradient(100deg, color-mix(in srgb, var(--app-hero-a) 64%, transparent), color-mix(in srgb, var(--app-hero-b) 60%, transparent));
+  border: 1px solid color-mix(in srgb, var(--app-border) 88%, transparent);
+  box-shadow: 0 8px 20px rgba(9, 13, 24, 0.18);
+}
+
+.nav-link {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  color: var(--app-text-muted);
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+.nav-link:hover {
+  color: var(--app-text);
+  border-color: var(--app-border);
+  background: color-mix(in srgb, var(--app-surface) 55%, transparent);
+}
+
+.nav-link-active {
+  color: var(--app-text);
+  border-color: color-mix(in srgb, var(--color-spotify-green) 48%, var(--app-border));
+  background: color-mix(in srgb, var(--app-surface-strong) 66%, transparent);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--color-spotify-green) 78%, transparent);
+}
+
+.kpi-card {
+  background: color-mix(in srgb, var(--app-surface) 88%, transparent);
+  border: 1px solid var(--app-border);
+  box-shadow: 0 8px 20px rgba(9, 14, 24, 0.12);
+}
+
+.cta-band {
+  background:
+    radial-gradient(circle at 16% 24%, color-mix(in srgb, var(--app-hero-a) 26%, transparent), transparent 48%),
+    linear-gradient(132deg, color-mix(in srgb, var(--app-surface-strong) 90%, transparent), color-mix(in srgb, var(--app-surface) 92%, transparent));
+  border: 1px solid var(--app-border);
+}
+
+.search-pill {
+  background: color-mix(in srgb, var(--app-surface) 88%, transparent);
+  border: 1px solid var(--app-border);
+  color: var(--app-text);
+}
+
+.search-pill::placeholder {
+  color: var(--app-text-muted);
+}
+
+.action-pill {
+  border: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-surface) 80%, transparent);
+  color: var(--app-text);
+}
+
+.action-pill:hover {
+  background: color-mix(in srgb, var(--app-surface-strong) 80%, transparent);
+}
+
+.theme-toggle {
+  border: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-surface) 83%, transparent);
+  color: var(--app-text);
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  background: color-mix(in srgb, var(--app-surface-strong) 82%, transparent);
+}
+
+.footer-shell {
+  background: var(--app-footer-bg);
+  border-top: 1px solid var(--app-border);
+  backdrop-filter: blur(20px);
+}
+
+:root[data-theme='light'] .text-white {
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='light'] .hover\:text-white:hover {
+  color: var(--app-text) !important;
+}
+
+:root[data-theme='light'] .border-white\/5,
+:root[data-theme='light'] .border-white\/10,
+:root[data-theme='light'] .border-white\/20 {
+  border-color: var(--app-border) !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--app-text-muted) 42%, transparent);
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--app-text-muted) 72%, transparent);
+}
+
+@media (max-width: 768px) {
+  .app-shell::before,
+  .app-shell::after {
+    width: 18rem;
+    height: 18rem;
+    filter: blur(14px);
+  }
+}
